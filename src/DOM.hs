@@ -45,3 +45,4 @@ parse s = parse' (parseTags s) []
               TagText s -> parse' t (text s : nodes)
               TagOpen name attrs -> let (n, us) = parseOpenTag name attrs [] t in
                   parse' us (n : nodes)
+              TagClose name -> error $ "found stray closing tag </" ++ name ++ ">"
