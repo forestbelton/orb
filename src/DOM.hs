@@ -1,10 +1,11 @@
 module DOM where
 
+import Node
+
 import Text.HTML.TagSoup
 import qualified Data.Map as M
 
-data Node = Node NodeType [Node]
-    deriving (Show)
+type DOMNode = Node NodeType
 
 data NodeType
     = Text String
@@ -12,22 +13,22 @@ data NodeType
     | Comment String
     deriving (Show)
 
-text :: String -> Node
+text :: String -> DOMNode
 text str = Node (Text str) []
 
-elmt :: String -> M.Map String String -> [Node] -> Node
+elmt :: String -> M.Map String String -> [DOMNode] -> DOMNode
 elmt tagName attrMap = Node (Element tagName attrMap)
 
-onNodeType :: (NodeType -> a) -> Node -> a
-onNodeType f (Node nt _) = f nt
+onDOMNodeType :: (NodeType -> a) -> DOMNode -> a
+onDOMNodeType f (Node nt _) = f nt
 
-nodeName :: Node -> String
-nodeName = onNodeType go
+nodeName :: DOMNode -> String
+nodeName = onDOMNodeType go
     where go (Text _)            = "#text"
           go (Element tagName _) = tagName
           go (Comment _)         = "#comment"
 
-parseOpenTag :: String -> [(String, String)] -> [Node] -> [Tag String] -> (Node, [Tag String])
+parseOpenTag :: String -> [(String, String)] -> [DOMNode] -> [Tag String] -> (DOMNode, [Tag String])
 parseOpenTag name attrs ts []      = error $ "unclosed open tag <" ++ name ++ ">"
 parseOpenTag name attrs ts (h : t) = case h of
     TagText s -> parseOpenTag name attrs (text s : ts) t
@@ -38,7 +39,7 @@ parseOpenTag name attrs ts (h : t) = case h of
             then (elmt name (M.fromAscList attrs) ts, t)
             else error $ "found stray closing tag </" ++ name1 ++ ">"
 
-parse :: String -> [Node]
+parse :: String -> [DOMNode]
 parse s = parse' (parseTags s) []
     where parse' [] nodes     = nodes
           parse' (h : t) nodes = case h of
