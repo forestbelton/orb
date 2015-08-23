@@ -14,11 +14,11 @@ data DisplayCommand =
 paintCmd :: SDL.Renderer -> DisplayCommand -> IO ()
 paintCmd re cmd = case cmd of
     SolidColor (SDL.Color r g b a) rect -> do
-        ptrRect <- malloc
-        poke ptrRect rect
-        SDL.setRenderDrawColor re r g b a
-        SDL.renderFillRect re ptrRect
-        free ptrRect
+        alloca $ \ptrRect -> do
+            poke ptrRect rect
+            SDL.setRenderDrawColor re r g b a
+            SDL.renderFillRect re ptrRect
+            return ()
 
 paint :: SDL.Renderer -> [DisplayCommand] -> IO ()
 paint re = mapM_ (paintCmd re)
