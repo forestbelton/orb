@@ -11,9 +11,11 @@ data PropKey
     | PaddingRight
     | BorderRightWidth
     | MarginRight
+    | BackgroundColor
 
 data PropVal
     = Px Int
+    | Color Int Int Int
     | Auto
 
 defaults :: PropKey -> PropVal
@@ -27,3 +29,5 @@ defaults k = maybe (error "unknown property") id $ M.lookup k vals
       , (BorderRightWidth, Px 0) -- TODO: replace with medium
       , (MarginRight, Px 0)
     ]
+
+data Style = M.Map PropKey PropVal
