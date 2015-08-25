@@ -2,6 +2,7 @@ module Style where
 
 import qualified Data.Map as M
 import Text.CSS.Parse
+import Data.Text (pack, unpack)
 
 data PropKey
     = MarginLeft
@@ -12,22 +13,42 @@ data PropKey
     | BorderRightWidth
     | MarginRight
     | BackgroundColor
+  deriving (Eq, Ord, Show)
 
 data PropVal
     = Px Int
     | Color Int Int Int
     | Auto
+  deriving (Eq, Show)
+
+-- TODO: Replace with real parser
+keyStr :: String -> PropKey
+keyStr "background-color" = BackgroundColor
+keyStr "width" = Width
+
+valStr :: String -> PropVal
+valStr "red" = Color 255 0 0
+valStr s | reverse (take 2 (reverse s)) == "px" = Px (read $ reverse $ drop 2 $ reverse s)
 
 defaults :: PropKey -> PropVal
 defaults k = maybe (error "unknown property") id $ M.lookup k vals
     where vals = M.fromAscList [
-        (MarginLeft, Px 0)
-      , (BorderLeftWidth, Px 0) -- TODO: replace with medium
-      , (PaddingLeft, Px 0)
-      , (Width, Auto)
-      , (PaddingRight, Px 0)
-      , (BorderRightWidth, Px 0) -- TODO: replace with medium
-      , (MarginRight, Px 0)
-    ]
+                    (MarginLeft, Px 0)
+                  , (BorderLeftWidth, Px 0) -- TODO: replace with medium
+                  , (PaddingLeft, Px 0)
+                  , (Width, Auto)
+                  , (PaddingRight, Px 0)
+                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
+                  , (MarginRight, Px 0)
+                ]
 
-data Style = M.Map PropKey PropVal
+newtype Style = Style (M.Map PropKey PropVal)
+  deriving (Show)
+
+-- ultimately should look like this:
+--
+-- M.fromAscList $ catMaybes $ map (\(k, v) -> (,) <$> propKey k <*> propVal v)
+
+parseStyle :: String -> (String, Style)
+parseStyle s = case parseBlock $ pack s of
+    Right (sel, props) -> (unpack sel, Style $ M.fromAscList $ map (\(k, v) -> (keyStr (unpack k), valStr (unpack v))) props)
