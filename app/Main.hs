@@ -61,8 +61,8 @@ eventLoop pe ctx = do
     ev <- peek pe
     case ev of
         SDL.QuitEvent _ _ -> do
-                exitSuccess
                 cleanUp ctx
+                exitSuccess
         _ -> do
             draw ctx
             eventLoop pe ctx 
