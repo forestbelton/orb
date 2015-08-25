@@ -1,5 +1,6 @@
 module Style where
 
+import qualified Graphics.UI.SDL as SDL
 import qualified Data.Map as M
 import Text.CSS.Parse
 import Data.Text (pack, unpack)
@@ -17,7 +18,7 @@ data PropKey
 
 data PropVal
     = Px Int
-    | Color Int Int Int
+    | Color SDL.Color
     | Auto
   deriving (Eq, Show)
 
@@ -27,7 +28,7 @@ keyStr "background-color" = BackgroundColor
 keyStr "width" = Width
 
 valStr :: String -> PropVal
-valStr "red" = Color 255 0 0
+valStr "red" = Color (SDL.Color 255 0 0 255)
 valStr s | reverse (take 2 (reverse s)) == "px" = Px (read $ reverse $ drop 2 $ reverse s)
 
 defaults :: PropKey -> PropVal
