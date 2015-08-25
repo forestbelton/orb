@@ -11,6 +11,7 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Storable
 import qualified Graphics.UI.SDL as SDL
+import qualified Graphics.UI.SDL.TTF as TTF
 import qualified Data.Map as M
 import System.Exit
 
@@ -41,9 +42,9 @@ main :: IO ()
 main = do
     ctx <- initScreen 800 600
     ptrEvent <- malloc
+    TTF.init
     draw ctx
     eventLoop ptrEvent ctx
-    cleanUp ctx
 
 draw :: SDLContext -> IO ()
 draw (SDLContext w r) = do
@@ -59,7 +60,9 @@ eventLoop pe ctx = do
     SDL.pollEvent pe
     ev <- peek pe
     case ev of
-        SDL.QuitEvent _ _ -> exitSuccess
+        SDL.QuitEvent _ _ -> do
+                exitSuccess
+                cleanUp ctx
         _ -> do
             draw ctx
             eventLoop pe ctx 

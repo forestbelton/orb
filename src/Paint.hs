@@ -3,6 +3,7 @@ module Paint (DisplayCommand(..), paint) where
 import Foreign.Marshal.Alloc
 import Foreign.Storable
 import Foreign.Ptr
+import Foreign.C.Types
 import Foreign (with)
 
 import System.IO
@@ -12,7 +13,7 @@ import qualified Graphics.UI.SDL.TTF as TTF
 
 
 data DisplayCommand =
-    SolidColor SDL.Color SDL.Rect | FontData (Int, Int) String Int SDL.Color String
+    SolidColor SDL.Color SDL.Rect | FontData (CInt, CInt) String Int SDL.Color String
 
 arial :: String
 arial = "../assets/arial.ttf"
@@ -26,11 +27,10 @@ paintCmd re cmd = case cmd of
             SDL.renderFillRect re ptrRect
             return ()
     FontData (x, y) name weight color text -> do
-         TTF.withInit $ do
-            font <- TTF.openFont arial 150
-            textSurface <- TTF.renderUTF8Solid font "test" (SDL.Color 255 255 255 1)
+            font <- TTF.openFont name weight 
+            textSurface <- TTF.renderUTF8Solid font text color 
             textTexture <- SDL.createTextureFromSurface re textSurface
-            let loc = SDL.Rect 320 240 150 100
+            let loc = SDL.Rect 320 240 x y 
             with loc $ \loc' ->
              SDL.renderCopy re textTexture nullPtr loc'
             return ()
