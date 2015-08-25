@@ -48,8 +48,8 @@ main = do
 
 draw :: SDLContext -> IO ()
 draw (SDLContext w r) = do
-    --SDL.setRenderDrawColor r 255 255 255 255
-    --SDL.renderClear r
+    SDL.setRenderDrawColor r 255 255 255 255
+    SDL.renderClear r
     let dim = Dimensions (SDL.Rect 0 0 800 50) noEdges noEdges noEdges
     paint r $ buildDisplayCommands $ Node (dim, Block, snd $ parseStyle "div { background-color: blue; }") []
     SDL.renderPresent r
