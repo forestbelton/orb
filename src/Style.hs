@@ -29,6 +29,8 @@ keyStr "width" = Width
 
 valStr :: String -> PropVal
 valStr "red" = Color (SDL.Color 255 0 0 255)
+valStr "green" = Color (SDL.Color 0 255 0 255)
+valStr "blue" = Color (SDL.Color 0 0 255 255)
 valStr s | reverse (take 2 (reverse s)) == "px" = Px (read $ reverse $ drop 2 $ reverse s)
 
 defaults :: PropKey -> PropVal
