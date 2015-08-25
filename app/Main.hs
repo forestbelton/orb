@@ -11,6 +11,7 @@ import Foreign.C.String
 import Foreign.Marshal.Alloc
 import Foreign.Storable
 import qualified Graphics.UI.SDL as SDL
+import qualified Graphics.UI.SDL.TTF as TTF
 import qualified Data.Map as M
 import System.Exit
 
@@ -30,10 +31,18 @@ initScreen width height = do
         SDL.setWindowTitle window s
     return $ SDLContext window renderer
 
+cleanUp :: SDLContext -> IO ()
+cleanUp (SDLContext win re) = do   
+    SDL.destroyRenderer re
+    SDL.destroyWindow win
+    SDL.quit
+    return ()
+
 main :: IO ()
 main = do
     ctx <- initScreen 800 600
     ptrEvent <- malloc
+    TTF.init
     draw ctx
     eventLoop ptrEvent ctx
 
@@ -51,7 +60,9 @@ eventLoop pe ctx = do
     SDL.pollEvent pe
     ev <- peek pe
     case ev of
-        SDL.QuitEvent _ _ -> exitSuccess
+        SDL.QuitEvent _ _ -> do
+                cleanUp ctx
+                exitSuccess
         _ -> do
             draw ctx
-            eventLoop pe ctx
+            eventLoop pe ctx 
