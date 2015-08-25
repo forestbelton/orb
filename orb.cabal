@@ -18,12 +18,15 @@ library
   exposed-modules:     DOM
                      , Node
                      , Paint
+                     , Style
+                     , Layout
   build-depends:       base >= 4.7 && < 5
                      , containers >= 0.5.5.1 && < 0.6
                      , tagsoup >= 0.13.3 && < 0.14
                      , css-text >= 0.1.2.1 && < 0.2
                      , sdl2 >= 1.3.1 && < 1.4
                      , sdl2-ttf >= 0.2.1 && < 0.2.2
+                     , text >= 1.2.0.6 && < 1.3
   default-language:    Haskell2010
 
 executable orb-exe
@@ -34,6 +37,7 @@ executable orb-exe
                      , orb
                      , sdl2 >= 1.3.1 && < 1.4
                      , sdl2-ttf >= 0.2.1 && < 0.2.2
+                     , containers >= 0.5.5.1 && < 0.6
   default-language:    Haskell2010
 
 test-suite orb-test
