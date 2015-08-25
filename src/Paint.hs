@@ -12,8 +12,9 @@ import qualified Graphics.UI.SDL as SDL
 import qualified Graphics.UI.SDL.TTF as TTF
 
 
-data DisplayCommand =
-    SolidColor SDL.Color SDL.Rect | FontData (CInt, CInt) String Int SDL.Color String
+data DisplayCommand
+    = SolidColor SDL.Color SDL.Rect 
+    | FontData (CInt, CInt) String Int SDL.Color String
 
 arial :: String
 arial = "../assets/arial.ttf"
