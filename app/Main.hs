@@ -45,15 +45,15 @@ main = do
     
     TTF.withInit $ do
         font <- TTF.openFont arial 150
-        textSurface <- TTF.renderUTF8Solid font "test" (SDL.Color 255 255 255 0)
+        textSurface <- TTF.renderUTF8Solid font "test" (SDL.Color 255 255 255 1)
         textTexture <- SDL.createTextureFromSurface (getRenderer ctx) textSurface
         loop ptrEvent ctx textTexture 
 
 loop :: Ptr SDL.Event -> SDLContext -> SDL.Texture -> IO ()
 loop event ctx textTexture = do
     let loc = SDL.Rect 320 240 150 100
-    _ <- SDL.renderClear (getRenderer ctx) 
-    _ <- with loc $ \loc' ->
+    SDL.renderClear (getRenderer ctx) 
+    with loc $ \loc' ->
              SDL.renderCopy (getRenderer ctx) textTexture nullPtr loc'
     SDL.renderPresent (getRenderer ctx) 
     eventLoop event ctx textTexture
