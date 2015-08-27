@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import Node
@@ -40,6 +42,9 @@ cleanUp (SDLContext win re) = do
 
 main :: IO ()
 main = do
+    print $ parseKey "border-left-width"
+    print $ parseVal "12px"
+
     ctx <- initScreen 800 600
     ptrEvent <- malloc
     TTF.init
@@ -51,7 +56,7 @@ draw (SDLContext w r) = do
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
     let dim = Dimensions (SDL.Rect 0 0 800 50) noEdges noEdges noEdges
-    paint r $ buildDisplayCommands $ Node (dim, Block, snd $ parseStyle "div { background-color: blue; }") []
+    --paint r $ buildDisplayCommands $ Node (dim, Block, snd $ parseStyle "div { background-color: blue; }") []
     SDL.renderPresent r
     return ()
 
