@@ -43,14 +43,20 @@ main = do
     ctx <- initScreen 800 600
     ptrEvent <- malloc
     TTF.init
-    draw ctx
     eventLoop ptrEvent ctx
+
+arial :: String
+arial = "./assets/arial.ttf"
 
 draw :: SDLContext -> IO ()
 draw (SDLContext w r) = do
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
+    paint r $ [
+        SolidColor (SDL.Color 255 0 0 255) (SDL.Rect 50 50 200 200),
+        FontData (50, 50) arial 20 (SDL.Color 0 0 0 255) "test"
+     ]
+    --paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
     SDL.renderPresent r
     return ()
 
@@ -60,8 +66,8 @@ eventLoop pe ctx = do
     ev <- peek pe
     case ev of
         SDL.QuitEvent _ _ -> do
-                cleanUp ctx
-                exitSuccess
+            cleanUp ctx
+            exitSuccess
         _ -> do
             draw ctx
             eventLoop pe ctx
