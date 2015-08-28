@@ -7,7 +7,7 @@ import qualified Data.Map as M
 import Text.CSS.Parse
 import Data.Text (pack, unpack)
 import Data.Attoparsec.Text
-import Data.Word
+import Data.Maybe
 import Control.Applicative
 
 data PropKey
@@ -37,11 +37,11 @@ data PropVal
 
 -- Parse the keys given in through a String
 parseKey :: String -> Maybe PropKey
-parseKey str = maybeResult (parse keyParser (pack str))
+parseKey = either (const Nothing) Just . parseOnly (keyParser <* endOfInput) . pack 
 
 -- Parse the values given in through a String
 parseVal :: String -> Maybe PropVal
-parseVal str = maybeResult (parse valParser (pack str))
+parseVal = either (const Nothing) Just . parseOnly (valParser <* endOfInput) . pack
 
 -- Parse all possible PropKeys
 keyParser :: Parser PropKey
@@ -67,38 +67,54 @@ unitParser =
 numUnitParser :: Parser PropVal 
 numUnitParser = NumUnit <$> decimal <*> unitParser
 
--- Parse the colors. This will probably change.
-colorParser :: Parser PropVal 
-colorParser = 
-     (string "red"      >> (return $ Color (SDL.Color 255 0 0 255)))
- <|> (string "green"    >> (return $ Color (SDL.Color 0 255 0 255)))
- <|> (string "blue"     >> (return $ Color (SDL.Color 0 0 255 255)))
+-- Parse a single hex character
+hexParser :: Parser Char
+hexParser = digit <|> satisfy isHex 
+                        where isHex c = inClass "abcdefABCDEF" c 
+
+-- Parser for color in #RGB format
+colorRGBParser :: Parser PropVal
+colorRGBParser = do
+    char '#'
+    r <- hexParser 
+    g <- hexParser 
+    b <- hexParser 
+    return $ Color (SDL.Color (read $ "0x" ++ [r, r]) (read $ "0x" ++ [g, g]) (read $ "0x" ++ [b, b]) 255)
+
+-- Parser for color in #RRGGBB format
+colorRRGGBBParser :: Parser PropVal
+colorRRGGBBParser = do
+    char '#'
+    r <- count 2 hexParser 
+    g <- count 2 hexParser 
+    b <- count 2 hexParser 
+    return $ Color (SDL.Color (read $ "0x" ++ r) (read $ "0x" ++ g) (read $ "0x" ++ b) 255)
+
+-- Parser for color in string literal format
+colorStringParser :: Parser PropVal 
+colorStringParser = 
+     (string "red"      >> return (Color (SDL.Color 255 0 0 255)))
+ <|> (string "green"    >> return (Color (SDL.Color 0 255 0 255)))
+ <|> (string "blue"     >> return (Color (SDL.Color 0 0 255 255)))
 
 -- Parse the values. Both the colors, and the numbers/units
 valParser :: Parser PropVal
-valParser = numUnitParser <|> colorParser
+valParser = numUnitParser <|> colorStringParser <|> colorRRGGBBParser <|> colorRGBParser
 
-{-
 defaults :: PropKey -> PropVal
 defaults k = maybe (error "unknown property") id $ M.lookup k vals
     where vals = M.fromAscList [
-                    (MarginLeft, Px 0)
-                  , (BorderLeftWidth, Px 0) -- TODO: replace with medium
-                  , (PaddingLeft, Px 0)
+                    (MarginLeft, NumUnit 0 Px)
+                  , (BorderLeftWidth, NumUnit 0 Px) -- TODO: replace with medium
+                  , (PaddingLeft, NumUnit 0 Px)
                   , (Width, Auto)
-                  , (PaddingRight, Px 0)
-                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
-                  , (MarginRight, Px 0)
+                  , (PaddingRight, NumUnit 0 Px)
+                  , (BorderRightWidth, NumUnit 0 Px) -- TODO: replace with medium
+                  , (MarginRight, NumUnit 0 Px)
                 ]
--}
 newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show)
 
--- ultimately should look like this:
---
--- M.fromAscList $ catMaybes $ map (\(k, v) -> (,) <$> propKey k <*> propVal v)
+parseStyle :: String -> Style
+parseStyle s = Style $ M.fromAscList $ catMaybes $ map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) ((\(Right x) -> x) $ parseAttrs (pack s))
 
-{-
-parseStyle :: String -> (String, Style)
-parseStyle s = case parseBlock $ pack s of
-    Right (sel, props) -> (unpack sel, Style $ M.fromAscList $ map (\(k, v) -> (keyParser (unpack k), valParser (unpack v))) props)-}
