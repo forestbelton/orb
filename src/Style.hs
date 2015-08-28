@@ -6,14 +6,20 @@ import Text.CSS.Parse
 import Data.Text (pack, unpack)
 
 data PropKey
-    = MarginLeft
-    | BorderLeftWidth
-    | PaddingLeft
-    | Width
-    | PaddingRight
-    | BorderRightWidth
+    = MarginTop
     | MarginRight
+    | MarginBottom
+    | MarginLeft
+    | Width
+    | BorderTopWidth
+    | BorderRightWidth
+    | BorderLeftWidth
+    | BorderBottomWidth
     | BackgroundColor
+    | PaddingTop
+    | PaddingRight
+    | PaddingBottom
+    | PaddingLeft
   deriving (Eq, Ord, Show)
 
 data PropVal
@@ -34,6 +40,10 @@ valStr "blue" = Color (SDL.Color 0 0 255 255)
 valStr s | reverse (take 2 (reverse s)) == "px" = Px (read $ reverse $ drop 2 $ reverse s)
 
 defaults :: PropKey -> PropVal
+defaults = const (Px 0)
+
+{-
+defaults :: PropKey -> PropVal
 defaults k = maybe (error "unknown property") id $ M.lookup k vals
     where vals = M.fromAscList [
                     (MarginLeft, Px 0)
@@ -42,8 +52,11 @@ defaults k = maybe (error "unknown property") id $ M.lookup k vals
                   , (Width, Auto)
                   , (PaddingRight, Px 0)
                   , (BorderRightWidth, Px 0) -- TODO: replace with medium
+                  , (BorderTopWidth, Px 0) -- TODO: replace with medium
+                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
                   , (MarginRight, Px 0)
                 ]
+-}
 
 newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show)

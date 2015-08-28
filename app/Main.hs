@@ -32,7 +32,7 @@ initScreen width height = do
     return $ SDLContext window renderer
 
 cleanUp :: SDLContext -> IO ()
-cleanUp (SDLContext win re) = do   
+cleanUp (SDLContext win re) = do
     SDL.destroyRenderer re
     SDL.destroyWindow win
     SDL.quit
@@ -50,8 +50,7 @@ draw :: SDLContext -> IO ()
 draw (SDLContext w r) = do
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    let dim = Dimensions (SDL.Rect 0 0 800 50) noEdges noEdges noEdges
-    paint r $ buildDisplayCommands $ Node (dim, Block, snd $ parseStyle "div { background-color: blue; }") []
+    paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
     SDL.renderPresent r
     return ()
 
@@ -65,4 +64,4 @@ eventLoop pe ctx = do
                 exitSuccess
         _ -> do
             draw ctx
-            eventLoop pe ctx 
+            eventLoop pe ctx
