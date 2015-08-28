@@ -34,8 +34,8 @@ paintCmd re cmd = case cmd of
             let loc = SDL.Rect 320 240 x y 
             with loc $ \loc' ->
              SDL.renderCopy re textTexture nullPtr loc'
-            return ()
-     
+            TTF.closeFont font
+
 
 paint :: SDL.Renderer -> [DisplayCommand] -> IO ()
 paint re = mapM_ (paintCmd re)
