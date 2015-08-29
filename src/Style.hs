@@ -108,6 +108,10 @@ valParser :: Parser PropVal
 valParser = numUnitParser <|> colorStringParser <|> colorRRGGBBParser <|> colorRGBParser
 
 defaults :: PropKey -> PropVal
+defaults = const (NumUnit 0 Px)
+
+{-
+defaults :: PropKey -> PropVal
 defaults k = maybe (error "unknown property") id $ M.lookup k vals
     where vals = M.fromAscList [
                     (MarginLeft, NumUnit 0 Px)
@@ -120,10 +124,11 @@ defaults k = maybe (error "unknown property") id $ M.lookup k vals
                   , (BorderRightWidth, Px 0) -- TODO: replace with medium
                   , (MarginRight, Px 0)
                 ]
+-}
 
 newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show)
 
 parseStyle :: String -> Style
-parseStyle s = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs $ pack 
+parseStyle s = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs $ pack s
 

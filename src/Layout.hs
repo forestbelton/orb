@@ -33,7 +33,7 @@ getBackgroundColor (Style s) = maybe (SDL.Color 255 255 255 255) (\(Color c) -> 
 -- todo: make safer
 findPx :: Style -> PropKey -> CInt
 findPx (Style s) k = fromIntegral $ toPx $ M.findWithDefault (defaults k) k s
-    where toPx (Px n) = n
+    where toPx (NumUnit n Px) = n
 
 -- todo: handle auto
 computeWidth :: CInt -> Node (BoxType, Style) -> CInt
