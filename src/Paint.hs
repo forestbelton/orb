@@ -10,4 +10,4 @@ import Paint.Rect
 import Paint.Text
 
 paint :: SDLContext -> [DisplayCommand] -> IO ()
-paint ctx = mapM_ (\(DisplayCommand d) -> display ctx d)
+paint ctx = mapM_ ($ ctx)

@@ -13,7 +13,4 @@ data SDLContext = SDLContext {
     contextFontCache   :: IORef FontCache
  }
 
-class Display a where
-    display :: SDLContext -> a -> IO ()
-
-data DisplayCommand = forall d. Display d => DisplayCommand d
+type DisplayCommand = SDLContext -> IO ()

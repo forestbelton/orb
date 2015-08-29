@@ -13,8 +13,6 @@ import Graphics.UI.SDL.TTF.FFI (TTFFont)
 
 import Paint.DisplayCommand
 
-data DisplayText = DisplayText CInt CInt String Int SDL.Color String
-
 getFont :: IORef FontCache -> String -> Int -> IO TTFFont
 getFont cacheRef name weight = do
     cache <- readIORef cacheRef
@@ -25,20 +23,17 @@ getFont cacheRef name weight = do
             writeIORef cacheRef (M.insert name font cache)
             return font
 
-instance Display DisplayText where
-    display ctx (DisplayText x y name weight col text) = do
-        let cacheRef = contextFontCache ctx
-        let re = contextRenderer ctx
-        font <- getFont cacheRef name weight
-        textSurface <- TTF.renderUTF8Solid font text col
-        textTexture <- SDL.createTextureFromSurface re textSurface
-        textWidth <- SDL.surfaceW <$> peek textSurface
-        textHeight <- SDL.surfaceH <$> peek textSurface
-        alloca $ \ptrRect -> do
-            poke ptrRect $ SDL.Rect x y textWidth textHeight
-            SDL.renderCopy re textTexture nullPtr ptrRect
-        SDL.destroyTexture textTexture
-        SDL.freeSurface textSurface
-
 displayText :: CInt -> CInt -> String -> Int -> SDL.Color -> String -> DisplayCommand
-displayText x y name weight col text = DisplayCommand $ DisplayText x y name weight col text
+displayText x y name weight col text ctx = do
+    let cacheRef = contextFontCache ctx
+    let re = contextRenderer ctx
+    font <- getFont cacheRef name weight
+    textSurface <- TTF.renderUTF8Solid font text col
+    textTexture <- SDL.createTextureFromSurface re textSurface
+    textWidth <- SDL.surfaceW <$> peek textSurface
+    textHeight <- SDL.surfaceH <$> peek textSurface
+    alloca $ \ptrRect -> do
+        poke ptrRect $ SDL.Rect x y textWidth textHeight
+        SDL.renderCopy re textTexture nullPtr ptrRect
+    SDL.destroyTexture textTexture
+    SDL.freeSurface textSurface
