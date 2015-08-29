@@ -41,7 +41,8 @@ paintFont cacheRef re x y name weight color text = do
     alloca $ \ptrRect -> do
         poke ptrRect $ SDL.Rect x y textWidth textHeight
         SDL.renderCopy re textTexture nullPtr ptrRect
-    return ()
+    SDL.destroyTexture textTexture
+    SDL.freeSurface textSurface
 
 paintRect :: SDL.Renderer -> SDL.Color -> SDL.Rect -> IO ()
 paintRect re (SDL.Color r g b a) rect = do
