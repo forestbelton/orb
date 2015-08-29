@@ -12,14 +12,20 @@ import Data.Char
 import Control.Applicative
 
 data PropKey
-    = MarginLeft
-    | BorderLeftWidth
-    | PaddingLeft
-    | Width
-    | PaddingRight
-    | BorderRightWidth
+    = MarginTop
     | MarginRight
+    | MarginBottom
+    | MarginLeft
+    | Width
+    | BorderTopWidth
+    | BorderRightWidth
+    | BorderLeftWidth
+    | BorderBottomWidth
     | BackgroundColor
+    | PaddingTop
+    | PaddingRight
+    | PaddingBottom
+    | PaddingLeft
   deriving (Eq, Ord, Show)
 
 data Units
@@ -108,10 +114,13 @@ defaults k = maybe (error "unknown property") id $ M.lookup k vals
                   , (BorderLeftWidth, NumUnit 0 Px) -- TODO: replace with medium
                   , (PaddingLeft, NumUnit 0 Px)
                   , (Width, Auto)
-                  , (PaddingRight, NumUnit 0 Px)
-                  , (BorderRightWidth, NumUnit 0 Px) -- TODO: replace with medium
-                  , (MarginRight, NumUnit 0 Px)
+                  , (PaddingRight, Px 0)
+                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
+                  , (BorderTopWidth, Px 0) -- TODO: replace with medium
+                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
+                  , (MarginRight, Px 0)
                 ]
+
 newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show)
 
