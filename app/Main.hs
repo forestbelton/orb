@@ -5,6 +5,7 @@ import Paint
 import Layout
 import Style
 
+import Data.IORef
 import Foreign.Ptr
 import Foreign.C.Types
 import Foreign.C.String
@@ -17,7 +18,8 @@ import System.Exit
 
 data SDLContext = SDLContext {
     contextWindow      :: SDL.Window,
-    contextRenderer    :: SDL.Renderer
+    contextRenderer    :: SDL.Renderer,
+    contextFontCache   :: IORef FontCache
  }
 
 initScreen :: CInt -> CInt -> IO SDLContext
@@ -27,14 +29,15 @@ initScreen width height = do
     SDL.createWindowAndRenderer width height 0 ptrWindow ptrRenderer
     window <- peek ptrWindow
     renderer <- peek ptrRenderer
+    fontCache <- newIORef M.empty
     withCString "orb" $ \s ->
         SDL.setWindowTitle window s
-    return $ SDLContext window renderer
+    return $ SDLContext window renderer fontCache
 
 cleanUp :: SDLContext -> IO ()
-cleanUp (SDLContext win re) = do
-    SDL.destroyRenderer re
-    SDL.destroyWindow win
+cleanUp ctx = do
+    SDL.destroyRenderer (contextRenderer ctx)
+    SDL.destroyWindow (contextWindow ctx)
     SDL.quit
     return ()
 
@@ -49,10 +52,12 @@ arial :: String
 arial = "./assets/arial.ttf"
 
 draw :: SDLContext -> IO ()
-draw (SDLContext w r) = do
+draw ctx = do
+    let r = contextRenderer ctx
+    let fc = contextFontCache ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    paint r $ [
+    paint fc r $ [
         SolidColor (SDL.Color 255 0 0 255) (SDL.Rect 50 50 200 200),
         FontData (50, 50) arial 20 (SDL.Color 0 0 0 255) "test"
      ]
