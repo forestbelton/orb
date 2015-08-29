@@ -116,5 +116,5 @@ newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show)
 
 parseStyle :: String -> Style
-parseStyle s = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs $ pack s
+parseStyle s = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs $ pack 
 
