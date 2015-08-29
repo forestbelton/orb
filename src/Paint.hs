@@ -31,24 +31,32 @@ getFont cacheRef name weight = do
             writeIORef cacheRef (M.insert name font cache)
             return font
 
+paintFont :: IORef FontCache -> SDL.Renderer -> CInt -> CInt -> String -> Int -> SDL.Color -> String -> IO ()
+paintFont cacheRef re x y name weight color text = do
+    font <- getFont cacheRef name weight
+    textSurface <- TTF.renderUTF8Solid font text color
+    textTexture <- SDL.createTextureFromSurface re textSurface
+    textWidth <- SDL.surfaceW <$> peek textSurface
+    textHeight <- SDL.surfaceH <$> peek textSurface
+    alloca $ \ptrRect -> do
+        poke ptrRect $ SDL.Rect x y textWidth textHeight
+        SDL.renderCopy re textTexture nullPtr ptrRect
+    return ()
+
+paintRect :: SDL.Renderer -> SDL.Color -> SDL.Rect -> IO ()
+paintRect re (SDL.Color r g b a) rect = do
+    alloca $ \ptrRect -> do
+        poke ptrRect rect
+        SDL.setRenderDrawColor re r g b a
+        SDL.renderFillRect re ptrRect
+    return ()
+
 paintCmd :: IORef FontCache -> SDL.Renderer -> DisplayCommand -> IO ()
 paintCmd cacheRef re cmd = case cmd of
-    SolidColor (SDL.Color r g b a) rect -> do
-        alloca $ \ptrRect -> do
-            poke ptrRect rect
-            SDL.setRenderDrawColor re r g b a
-            SDL.renderFillRect re ptrRect
-            return ()
-    FontData (x, y) name weight color text -> do
-        font <- getFont cacheRef name weight
-        textSurface <- TTF.renderUTF8Solid font text color
-        textTexture <- SDL.createTextureFromSurface re textSurface
-        textWidth <- SDL.surfaceW <$> peek textSurface
-        textHeight <- SDL.surfaceH <$> peek textSurface
-        alloca $ \ptrRect -> do
-            poke ptrRect $ SDL.Rect x y textWidth textHeight
-            SDL.renderCopy re textTexture nullPtr ptrRect
-        return ()
+   SolidColor c rect -> do
+        paintRect re c rect
+   FontData (x, y) name weight color text ->
+        paintFont cacheRef re x y name weight color text
 
 paint :: IORef FontCache -> SDL.Renderer -> [DisplayCommand] -> IO ()
 paint fc re = mapM_ (paintCmd fc re)

@@ -58,8 +58,8 @@ draw ctx = do
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
     paint fc r $ [
-        SolidColor (SDL.Color 255 0 0 255) (SDL.Rect 50 50 200 200),
-        FontData (50, 50) arial 20 (SDL.Color 0 0 0 255) "test"
+        SolidColor (SDL.Color 255 0 0 255) (SDL.Rect 0 0 800 200),
+        FontData (0, 0) arial 20 (SDL.Color 0 0 0 255) "test"
      ]
     --paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
     SDL.renderPresent r
