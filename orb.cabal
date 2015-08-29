@@ -20,6 +20,9 @@ library
                      , Paint
                      , Style
                      , Layout
+                     , Paint.DisplayCommand
+                     , Paint.Rect
+                     , Paint.Text
   build-depends:       base >= 4.7 && < 5
                      , containers >= 0.5.5.1 && < 0.6
                      , tagsoup >= 0.13.3 && < 0.14

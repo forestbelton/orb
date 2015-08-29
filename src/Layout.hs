@@ -55,7 +55,7 @@ buildLayout n@(Node (Block, sty) cs) = Node (Dimensions (SDL.Rect 0 0 width heig
 
 buildDisplayCommands :: Layout -> [DisplayCommand]
 buildDisplayCommands (Node (dim, Block, sty) cs) =
-    SolidColor (getBackgroundColor sty) (dimensionsContent dim) : concatMap buildDisplayCommands cs
+    displayRect (getBackgroundColor sty) (dimensionsContent dim) : concatMap buildDisplayCommands cs
 
 layout :: Node Style -> [DisplayCommand]
 layout = buildDisplayCommands . buildLayout . fmap (\sty -> (Block, sty))

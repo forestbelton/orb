@@ -16,12 +16,6 @@ import qualified Graphics.UI.SDL.TTF as TTF
 import qualified Data.Map as M
 import System.Exit
 
-data SDLContext = SDLContext {
-    contextWindow      :: SDL.Window,
-    contextRenderer    :: SDL.Renderer,
-    contextFontCache   :: IORef FontCache
- }
-
 initScreen :: CInt -> CInt -> IO SDLContext
 initScreen width height = do
     ptrWindow <- malloc
@@ -54,12 +48,11 @@ arial = "./assets/arial.ttf"
 draw :: SDLContext -> IO ()
 draw ctx = do
     let r = contextRenderer ctx
-    let fc = contextFontCache ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    paint fc r $ [
-        SolidColor (SDL.Color 255 0 0 255) (SDL.Rect 0 0 800 200),
-        FontData (0, 0) arial 20 (SDL.Color 0 0 0 255) "test"
+    paint ctx [
+        displayRect (SDL.Color 255 0 0 255) (SDL.Rect 0 0 800 200),
+        displayText 0 0 arial 20 (SDL.Color 0 0 0 255) "test"
      ]
     --paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
     SDL.renderPresent r
