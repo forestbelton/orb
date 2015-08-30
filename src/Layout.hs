@@ -1,5 +1,6 @@
 module Layout where
 
+import DOM
 import Paint
 import Node
 import Style
@@ -25,7 +26,7 @@ noEdges :: Edges
 noEdges = Edges 0 0 0 0
 
 data BoxType = Block | Inline | Anonymous
-type Layout = Node (Dimensions, BoxType, Style)
+type Layout = Node (NodeType, Dimensions, BoxType, Style)
 
 getBackgroundColor :: Style -> SDL.Color
 getBackgroundColor (Style s) = maybe (SDL.Color 255 255 255 255) (\(Color c) -> c) $ M.lookup BackgroundColor s
@@ -36,17 +37,19 @@ findPx (Style s) k = fromIntegral $ toPx $ M.findWithDefault (defaults k) k s
     where toPx (Px n) = n
 
 -- todo: handle auto
-computeWidth :: CInt -> Node (BoxType, Style) -> CInt
-computeWidth parentWidth (Node (Block, sty) _) = parentWidth - margin - padding - border
+computeWidth :: CInt -> Node (NodeType, BoxType, Style) -> CInt
+computeWidth parentWidth (Node (_, Block, sty) _) = parentWidth - margin - padding - border
    where margin  = findPx sty MarginLeft + findPx sty MarginRight
          padding = findPx sty PaddingLeft + findPx sty PaddingRight
          border  = findPx sty BorderLeftWidth + findPx sty BorderRightWidth
 
-computeHeight :: Node (BoxType, Style) -> CInt
-computeHeight _ = 50
+computeHeight :: Node (NodeType, BoxType, Style) -> CInt
+computeHeight (Node (nt, _, sty) cs) = case nt of
+    Element _ _ -> sum $ map computeHeight cs
+    Text s -> 20 -- TODO: move into io monad so this works properly
 
-buildLayout :: Node (BoxType, Style) -> Layout
-buildLayout n@(Node (Block, sty) cs) = Node (Dimensions (SDL.Rect 0 0 width height) paddingEdges marginEdges borderEdges, Block, sty) (map buildLayout cs)
+buildLayout :: Node (NodeType, BoxType, Style) -> Layout
+buildLayout n@(Node (nt, Block, sty) cs) = Node (nt, Dimensions (SDL.Rect 0 0 width height) paddingEdges marginEdges borderEdges, Block, sty) (map buildLayout cs)
     where width  = computeWidth 800 n
           height = computeHeight n
           paddingEdges = Edges (findPx sty PaddingTop) (findPx sty PaddingRight) (findPx sty PaddingBottom) (findPx sty PaddingLeft)
@@ -54,8 +57,11 @@ buildLayout n@(Node (Block, sty) cs) = Node (Dimensions (SDL.Rect 0 0 width heig
           borderEdges  = Edges (findPx sty BorderTopWidth) (findPx sty BorderRightWidth) (findPx sty BorderBottomWidth) (findPx sty BorderLeftWidth)
 
 buildDisplayCommands :: Layout -> [DisplayCommand]
-buildDisplayCommands (Node (dim, Block, sty) cs) =
-    displayRect (getBackgroundColor sty) (dimensionsContent dim) : concatMap buildDisplayCommands cs
+buildDisplayCommands (Node (nodeTy, dim, Block, sty) cs) = dc : concatMap buildDisplayCommands cs
+    where dc = case nodeTy of
+                   Element _ _ -> displayRect (getBackgroundColor sty) (dimensionsContent dim)
+                   Text s -> case dimensionsContent dim of
+                       (SDL.Rect x y _ _ ) -> displayText x y "./assets/arial.ttf" 12 (SDL.Color 0 0 0 255) s
 
-layout :: Node Style -> [DisplayCommand]
-layout = buildDisplayCommands . buildLayout . fmap (\sty -> (Block, sty))
+layout :: Node (NodeType, Style) -> [DisplayCommand]
+layout = buildDisplayCommands . buildLayout . fmap (\(nt, sty) -> (nt, Block, sty))

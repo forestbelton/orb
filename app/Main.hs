@@ -1,5 +1,6 @@
 module Main where
 
+import DOM
 import Node
 import Paint
 import Layout
@@ -50,11 +51,7 @@ draw ctx = do
     let r = contextRenderer ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    paint ctx [
-        displayRect (SDL.Color 255 0 0 255) (SDL.Rect 0 0 800 200),
-        displayText 0 0 arial 20 (SDL.Color 0 0 0 255) "test"
-     ]
-    --paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
+    paint ctx $ layout $ fmap (\nt -> (nt, Style M.empty)) $ head $ parse "<div>hello html</div>"
     SDL.renderPresent r
     return ()
 

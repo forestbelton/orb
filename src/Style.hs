@@ -20,6 +20,7 @@ data PropKey
     | PaddingRight
     | PaddingBottom
     | PaddingLeft
+    | Height
   deriving (Eq, Ord, Show)
 
 data PropVal
