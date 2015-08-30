@@ -28,7 +28,7 @@ displayText x y name weight col text ctx = do
     let cacheRef = contextFontCache ctx
     let re = contextRenderer ctx
     font <- getFont cacheRef name weight
-    textSurface <- TTF.renderUTF8Solid font text col
+    textSurface <- TTF.renderUTF8Blended font text col
     textTexture <- SDL.createTextureFromSurface re textSurface
     textWidth <- SDL.surfaceW <$> peek textSurface
     textHeight <- SDL.surfaceH <$> peek textSurface
