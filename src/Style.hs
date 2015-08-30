@@ -1,5 +1,8 @@
 module Style where
 
+import DOM
+import Node
+
 import qualified Graphics.UI.SDL as SDL
 import qualified Data.Map as M
 import Text.CSS.Parse
@@ -69,3 +72,13 @@ newtype Style = Style (M.Map PropKey PropVal)
 parseStyle :: String -> (String, Style)
 parseStyle s = case parseBlock $ pack s of
     Right (sel, props) -> (unpack sel, Style $ M.fromAscList $ map (\(k, v) -> (keyStr (unpack k), valStr (unpack v))) props)
+
+parseStyle' :: String -> Style
+parseStyle' s = case parseAttrs $ pack s of
+    Right props -> Style $ M.fromAscList $ map (\(k, v) -> (keyStr (unpack k), valStr (unpack v))) props
+
+styleNode :: DOMNode -> Node (NodeType, Style)
+styleNode (Node nt cs) = Node (nt, sty) $ map styleNode cs
+    where sty = case nt of
+                    Element _ attrs -> maybe (Style M.empty) parseStyle' $ M.lookup "style" attrs
+                    _               -> Style M.empty

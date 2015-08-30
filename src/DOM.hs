@@ -47,3 +47,6 @@ parse s = parse' (parseTags s) []
               TagOpen name attrs -> let (n, us) = parseOpenTag name attrs [] t in
                   parse' us (n : nodes)
               TagClose name -> error $ "found stray closing tag </" ++ name ++ ">"
+
+parseDOM :: String -> DOMNode
+parseDOM = head . parse

@@ -46,12 +46,15 @@ main = do
 arial :: String
 arial = "./assets/arial.ttf"
 
+renderHTML :: SDLContext -> String -> IO ()
+renderHTML ctx = paint ctx . layout . styleNode . parseDOM
+
 draw :: SDLContext -> IO ()
 draw ctx = do
     let r = contextRenderer ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    paint ctx $ layout $ fmap (\nt -> (nt, Style M.empty)) $ head $ parse "<div>hello html</div>"
+    renderHTML ctx "<div style=\"background-color:red;\">hello html</div>"
     SDL.renderPresent r
     return ()
 
