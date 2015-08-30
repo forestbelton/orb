@@ -15,6 +15,7 @@ import Foreign.Storable
 import qualified Graphics.UI.SDL as SDL
 import qualified Graphics.UI.SDL.TTF as TTF
 import qualified Data.Map as M
+import System.IO
 import System.Exit
 
 initScreen :: CInt -> CInt -> IO SDLContext
@@ -41,25 +42,23 @@ main = do
     ctx <- initScreen 800 600
     ptrEvent <- malloc
     TTF.init
-    eventLoop ptrEvent ctx
+    ds <- build "./assets/test.html"
+    eventLoop ptrEvent ctx ds
 
-arial :: String
-arial = "./assets/arial.ttf"
+build :: FilePath -> IO [DisplayCommand]
+build = fmap (layout . styleNode . parseDOM) . readFile
 
-renderHTML :: SDLContext -> String -> IO ()
-renderHTML ctx = paint ctx . layout . styleNode . parseDOM
-
-draw :: SDLContext -> IO ()
-draw ctx = do
+draw :: SDLContext -> [DisplayCommand] -> IO ()
+draw ctx ds = do
     let r = contextRenderer ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    renderHTML ctx "<div style=\"background-color:red;\">hello html</div>"
+    paint ctx ds
     SDL.renderPresent r
     return ()
 
-eventLoop :: Ptr SDL.Event -> SDLContext -> IO ()
-eventLoop pe ctx = do
+eventLoop :: Ptr SDL.Event -> SDLContext -> [DisplayCommand] -> IO ()
+eventLoop pe ctx ds = do
     SDL.pollEvent pe
     ev <- peek pe
     case ev of
@@ -67,5 +66,5 @@ eventLoop pe ctx = do
             cleanUp ctx
             exitSuccess
         _ -> do
-            draw ctx
-            eventLoop pe ctx
+            draw ctx ds
+            eventLoop pe ctx ds
