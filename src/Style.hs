@@ -5,7 +5,7 @@ module Style where
 import qualified Graphics.UI.SDL as SDL
 import qualified Data.Map as M
 import Text.CSS.Parse
-import Data.Text (pack, unpack)
+import Data.Text (pack, unpack, Text)
 import Data.Attoparsec.Text
 import Data.Maybe
 import Data.Char
@@ -50,6 +50,9 @@ parseKey = either (const Nothing) Just . parseOnly (keyParser <* endOfInput) . p
 parseVal :: String -> Maybe PropVal
 parseVal = either (const Nothing) Just . parseOnly (valParser <* endOfInput) . pack
 
+token :: Text a -> a -> Parser a
+token s x = string s *> pure x
+
 -- Parse all possible PropKeys
 keyParser :: Parser PropKey
 keyParser = 
@@ -78,23 +81,17 @@ numUnitParser = NumUnit <$> decimal <*> unitParser
 hexParser :: Parser Char
 hexParser = satisfy isHexDigit
 
+colorHexParser :: Parser String -> Parser PropVal
+colorHexParser p = Color <$> (SDL.Color <$> (char '#' *> hp) <*> hp <*> hp <*> pure 255)
+                        where hp = (read . ("0x" ++)) <$> p
+
 -- Parser for color in #RGB format
 colorRGBParser :: Parser PropVal
-colorRGBParser = do
-    char '#'
-    r <- hexParser 
-    g <- hexParser 
-    b <- hexParser 
-    return $ Color (SDL.Color (read $ "0x" ++ [r, r]) (read $ "0x" ++ [g, g]) (read $ "0x" ++ [b, b]) 255)
+colorRGBParser = colorHexParser (replicate 2 <$> hexParser) 
 
 -- Parser for color in #RRGGBB format
 colorRRGGBBParser :: Parser PropVal
-colorRRGGBBParser = do
-    char '#'
-    r <- count 2 hexParser 
-    g <- count 2 hexParser 
-    b <- count 2 hexParser 
-    return $ Color (SDL.Color (read $ "0x" ++ r) (read $ "0x" ++ g) (read $ "0x" ++ b) 255)
+colorRRGGBBParser = colorHexParser (count 2 hexParser) 
 
 -- Parser for color in string literal format
 colorStringParser :: Parser PropVal 
@@ -130,5 +127,5 @@ newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show)
 
 parseStyle :: String -> Style
-parseStyle s = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs $ pack s
+parseStyle = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs . pack
 
