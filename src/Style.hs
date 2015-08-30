@@ -2,6 +2,9 @@
 
 module Style where
 
+import DOM
+import Node
+
 import qualified Graphics.UI.SDL as SDL
 import qualified Data.Map as M
 import Text.CSS.Parse
@@ -26,6 +29,7 @@ data PropKey
     | PaddingRight
     | PaddingBottom
     | PaddingLeft
+    | Height
   deriving (Eq, Ord, Show)
 
 data Units
@@ -50,8 +54,10 @@ parseKey = either (const Nothing) Just . parseOnly (keyParser <* endOfInput) . p
 parseVal :: String -> Maybe PropVal
 parseVal = either (const Nothing) Just . parseOnly (valParser <* endOfInput) . pack
 
+{-
 token :: Text a -> a -> Parser a
 token s x = string s *> pure x
+-}
 
 -- Parse all possible PropKeys
 keyParser :: Parser PropKey
@@ -129,3 +135,12 @@ newtype Style = Style (M.Map PropKey PropVal)
 parseStyle :: String -> Style
 parseStyle = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs . pack
 
+parseStyle' :: String -> Style
+parseStyle' s = case parseAttrs $ pack s of
+    Right props -> Style $ M.fromAscList $ map (\(k, v) -> (parseKey (unpack k), parseVal (unpack v))) props
+
+styleNode :: DOMNode -> Node (NodeType, Style)
+styleNode (Node nt cs) = Node (nt, sty) $ map styleNode cs
+    where sty = case nt of
+                    Element _ attrs -> maybe (Style M.empty) parseStyle' $ M.lookup "style" attrs
+                    _               -> Style M.empty

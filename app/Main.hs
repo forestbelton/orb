@@ -1,5 +1,6 @@
 module Main where
 
+import DOM
 import Node
 import Paint
 import Layout
@@ -15,12 +16,6 @@ import qualified Graphics.UI.SDL as SDL
 import qualified Graphics.UI.SDL.TTF as TTF
 import qualified Data.Map as M
 import System.Exit
-
-data SDLContext = SDLContext {
-    contextWindow      :: SDL.Window,
-    contextRenderer    :: SDL.Renderer,
-    contextFontCache   :: IORef FontCache
- }
 
 initScreen :: CInt -> CInt -> IO SDLContext
 initScreen width height = do
@@ -51,17 +46,15 @@ main = do
 arial :: String
 arial = "./assets/arial.ttf"
 
+renderHTML :: SDLContext -> String -> IO ()
+renderHTML ctx = paint ctx . layout . styleNode . parseDOM
+
 draw :: SDLContext -> IO ()
 draw ctx = do
     let r = contextRenderer ctx
-    let fc = contextFontCache ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
-    paint fc r $ [
-        SolidColor (SDL.Color 255 0 0 255) (SDL.Rect 0 0 800 200),
-        FontData (0, 0) arial 20 (SDL.Color 0 0 0 255) "test"
-     ]
-    --paint r $ layout $ Node (snd $ parseStyle "div { background-color: blue; }") []
+    renderHTML ctx "<div style=\"background-color:red;\">hello html</div>"
     SDL.renderPresent r
     return ()
 
