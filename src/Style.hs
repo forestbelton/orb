@@ -6,9 +6,9 @@ module Style (
 import DOM
 import Node
 import Style.Types
+import Style.Color
 
 import Graphics.UI.SDL.TTF.FFI (TTFFont)
-import qualified Graphics.UI.SDL as SDL
 import qualified Data.Map as M
 import Text.CSS.Parse
 import Data.Text (pack, unpack)
@@ -21,10 +21,10 @@ keyStr "width"            = Width
 keyStr "height"           = Height
 
 valStr :: String -> PropVal
-valStr "red"   = Color (SDL.Color 255 0 0 255)
-valStr "green" = Color (SDL.Color 0 255 0 255)
-valStr "blue"  = Color (SDL.Color 0 0 255 255)
-valStr "white" = Color (SDL.Color 255 255 255 255)
+valStr "red"   = red
+valStr "green" = green
+valStr "blue"  = blue
+valStr "white" = white
 valStr s | reverse (take 2 (reverse s)) == "px" = Px (read $ reverse $ drop 2 $ reverse s)
 
 -- ultimately should look like this:

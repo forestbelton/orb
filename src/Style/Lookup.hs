@@ -1,6 +1,7 @@
 module Style.Lookup (lookup) where
 
 import Style
+import Style.Color
 import Style.Types
 
 import Prelude hiding (lookup)
@@ -18,7 +19,7 @@ defaultFont :: TTFFont
 defaultFont = unsafePerformIO $ TTF.init >> TTF.openFont "./assets/arial.ttf" 12
 
 defaults :: PropKey -> PropVal
-defaults FontColor       = Color $ SDL.Color 0 0 0 255
+defaults FontColor       = black
 defaults FontFamily      = Font defaultFont
-defaults BackgroundColor = Color $ SDL.Color 255 255 255 255
+defaults BackgroundColor = white
 defaults _               = Px 0

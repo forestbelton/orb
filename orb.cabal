@@ -20,6 +20,7 @@ library
                      , Paint
                      , Style
                      , Style.Types
+                     , Style.Color
                      , Style.Lookup
                      , Layout
                      , Layout.Height
