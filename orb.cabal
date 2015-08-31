@@ -19,6 +19,7 @@ library
                      , Node
                      , Paint
                      , Style
+                     , Style.Types
                      , Style.Lookup
                      , Layout
                      , Layout.Height

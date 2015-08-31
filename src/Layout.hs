@@ -37,7 +37,7 @@ buildDisplayCommands (Node (nodeTy, dim, Block, sty) cs) = dc : concatMap buildD
     where dc = case nodeTy of
                    Element _ _ -> displayRect ((\(Color c) -> c) $ S.lookup sty BackgroundColor) (dimensionsContent dim)
                    Text s -> case dimensionsContent dim of
-                       (SDL.Rect x y _ _ ) -> displayText x y "./assets/arial.ttf" 12 (SDL.Color 0 0 0 255) s
+                       (SDL.Rect x y _ _ ) -> displayText x y (fromFont $ S.lookup sty FontFamily) (fromColor $ S.lookup sty FontColor) s
 
 layout :: Node (NodeType, Style) -> [DisplayCommand]
 layout = buildDisplayCommands . buildLayout . fmap (\(nt, sty) -> (nt, Block, sty))
