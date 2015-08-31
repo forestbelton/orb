@@ -1,4 +1,4 @@
-module Paint.Text (displayText) where
+module Paint.Text (getFont, displayText) where
 
 import Control.Applicative
 import Data.IORef

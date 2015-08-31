@@ -19,7 +19,10 @@ library
                      , Node
                      , Paint
                      , Style
+                     , Style.Lookup
                      , Layout
+                     , Layout.Height
+                     , Layout.Types
                      , Paint.DisplayCommand
                      , Paint.Rect
                      , Paint.Text
