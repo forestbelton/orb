@@ -1,6 +1,5 @@
 {-# LANGUAGE OverloadedStrings #-}
 
-module Style where
 module Style (
       module Style.Types
     , styleNode
@@ -20,37 +19,6 @@ import Data.Maybe
 import Data.Char
 import Control.Applicative
 
-data PropKey
-    = MarginTop
-    | MarginRight
-    | MarginBottom
-    | MarginLeft
-    | Width
-    | BorderTopWidth
-    | BorderRightWidth
-    | BorderLeftWidth
-    | BorderBottomWidth
-    | BackgroundColor
-    | PaddingTop
-    | PaddingRight
-    | PaddingBottom
-    | PaddingLeft
-    | Height
-  deriving (Eq, Ord, Show)
-
-data Units
-    = Px
-    | Em
-    | Percent
-    | Pt
-    deriving (Eq, Show)
-
-data PropVal
-    = NumUnit Int Units
-    | Color SDL.Color
-    | Auto
-    | None 
-  deriving (Eq, Show)
 
 -- Parse the keys given in through a String
 parseKey :: String -> Maybe PropKey
@@ -94,7 +62,7 @@ hexParser :: Parser Char
 hexParser = satisfy isHexDigit
 
 colorHexParser :: Parser String -> Parser PropVal
-colorHexParser p = Color <$> (SDL.Color <$> (char '#' *> hp) <*> hp <*> hp <*> pure 255)
+colorHexParser p = Style.Color.rgb <$> (char '#' *> hp) <*> hp <*> hp
                         where hp = (read . ("0x" ++)) <$> p
 
 -- Parser for color in #RGB format
@@ -108,9 +76,9 @@ colorRRGGBBParser = colorHexParser (count 2 hexParser)
 -- Parser for color in string literal format
 colorStringParser :: Parser PropVal 
 colorStringParser = 
-     (string "red"      >> return (Color (SDL.Color 255 0 0 255)))
- <|> (string "green"    >> return (Color (SDL.Color 0 255 0 255)))
- <|> (string "blue"     >> return (Color (SDL.Color 0 0 255 255)))
+     (string "red"      >> return (Style.Color.rgb 255 0 0))
+ <|> (string "green"    >> return (Style.Color.rgb 0 255 0))
+ <|> (string "blue"     >> return (Style.Color.rgb 0 0 255))
 
 -- Parse the values. Both the colors, and the numbers/units
 valParser :: Parser PropVal
@@ -134,9 +102,6 @@ defaults k = maybe (error "unknown property") id $ M.lookup k vals
                   , (MarginRight, Px 0)
                 ]
 -}
-
-newtype Style = Style (M.Map PropKey PropVal)
-  deriving (Show)
 
 parseStyle :: String -> Style
 parseStyle = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs . pack

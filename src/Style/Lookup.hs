@@ -22,4 +22,4 @@ defaults :: PropKey -> PropVal
 defaults FontColor       = black
 defaults FontFamily      = Font defaultFont
 defaults BackgroundColor = white
-defaults _               = Px 0
+defaults _               = NumUnit 0 Px

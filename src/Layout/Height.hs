@@ -16,4 +16,4 @@ height (Node (nt, _, Style sty) cs) = h + (sum $ map height cs)
     where h = case nt of
                 Text t      -> let Font font = S.lookup (Style sty) FontFamily in
                                  snd $ unsafePerformIO $ TTF.sizeUTF8 font t
-                Element _ _ -> (\(Px n) -> n) $ M.findWithDefault (Px 0) Height sty
+                Element _ _ -> (\(NumUnit n Px) -> n) $ M.findWithDefault (NumUnit 0 Px) Height sty
