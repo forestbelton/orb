@@ -1,4 +1,4 @@
-module Paint.Text (displayText) where
+module Paint.Text (getFont, displayText) where
 
 import Control.Applicative
 import Data.IORef
@@ -23,11 +23,11 @@ getFont cacheRef name weight = do
             writeIORef cacheRef (M.insert name font cache)
             return font
 
-displayText :: CInt -> CInt -> String -> Int -> SDL.Color -> String -> DisplayCommand
-displayText x y name weight col text ctx = do
+displayText :: CInt -> CInt -> TTFFont -> SDL.Color -> String -> DisplayCommand
+displayText x y font col text ctx = do
     let cacheRef = contextFontCache ctx
     let re = contextRenderer ctx
-    font <- getFont cacheRef name weight
+--    font <- getFont cacheRef name weight
     textSurface <- TTF.renderUTF8Blended font text col
     textTexture <- SDL.createTextureFromSurface re textSurface
     textWidth <- SDL.surfaceW <$> peek textSurface

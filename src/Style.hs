@@ -1,11 +1,17 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Style where
+module Style (
+      module Style.Types
+    , styleNode
+) where
 
 import DOM
 import Node
+import Style.Types
+import Style.Color
 
-import qualified Graphics.UI.SDL as SDL
+import Graphics.UI.SDL.TTF.FFI (TTFFont)
 import qualified Data.Map as M
 import Text.CSS.Parse
 import Data.Text (pack, unpack, Text)
@@ -135,12 +141,8 @@ newtype Style = Style (M.Map PropKey PropVal)
 parseStyle :: String -> Style
 parseStyle = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs . pack
 
-parseStyle' :: String -> Style
-parseStyle' s = case parseAttrs $ pack s of
-    Right props -> Style $ M.fromAscList $ map (\(k, v) -> (parseKey (unpack k), parseVal (unpack v))) props
-
 styleNode :: DOMNode -> Node (NodeType, Style)
 styleNode (Node nt cs) = Node (nt, sty) $ map styleNode cs
     where sty = case nt of
-                    Element _ attrs -> maybe (Style M.empty) parseStyle' $ M.lookup "style" attrs
+                    Element _ attrs -> maybe (Style M.empty) parseStyle $ M.lookup "style" attrs
                     _               -> Style M.empty
