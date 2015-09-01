@@ -9,7 +9,6 @@ import DOM
 import Node
 import Style.Types
 import Style.Color
-
 import Graphics.UI.SDL.TTF.FFI (TTFFont)
 import qualified Data.Map as M
 import Text.CSS.Parse
@@ -28,30 +27,28 @@ parseKey = either (const Nothing) Just . parseOnly (keyParser <* endOfInput) . p
 parseVal :: String -> Maybe PropVal
 parseVal = either (const Nothing) Just . parseOnly (valParser <* endOfInput) . pack
 
-{-
-token :: Text a -> a -> Parser a
+token :: Text -> a -> Parser a
 token s x = string s *> pure x
--}
 
 -- Parse all possible PropKeys
 keyParser :: Parser PropKey
 keyParser = 
-     (string "background-color"     >> return BackgroundColor)
- <|> (string "width"                >> return Width)
- <|> (string "margin-right"         >> return MarginRight)
- <|> (string "margin-left"          >> return MarginLeft)
- <|> (string "padding-left"         >> return PaddingLeft)
- <|> (string "padding-right"        >> return PaddingRight)
- <|> (string "border-left-width"    >> return BorderLeftWidth)
- <|> (string "border-right-width"   >> return BorderRightWidth)
+     token "background-color" BackgroundColor
+ <|> token "width" Width
+ <|> token "margin-right" MarginRight
+ <|> token "margin-left" MarginLeft
+ <|> token "padding-left" PaddingLeft
+ <|> token "padding-right" PaddingRight
+ <|> token "border-left-width" BorderLeftWidth
+ <|> token "border-right-width" BorderRightWidth
 
 -- Parse the units
 unitParser :: Parser Units
 unitParser = 
-     (string "px"       >> return Px)
- <|> (string "em"       >> return Em)
- <|> (string "%"        >> return Percent)
- <|> (string "pt"       >> return Pt)
+     token "px" Px
+ <|> token "em" Em
+ <|> token "%"  Percent
+ <|> token "pt" Pt
 
 -- Parse the number before the units, and the units themselves
 numUnitParser :: Parser PropVal 
@@ -83,25 +80,6 @@ colorStringParser =
 -- Parse the values. Both the colors, and the numbers/units
 valParser :: Parser PropVal
 valParser = numUnitParser <|> colorStringParser <|> colorRRGGBBParser <|> colorRGBParser
-
-defaults :: PropKey -> PropVal
-defaults = const (NumUnit 0 Px)
-
-{-
-defaults :: PropKey -> PropVal
-defaults k = maybe (error "unknown property") id $ M.lookup k vals
-    where vals = M.fromAscList [
-                    (MarginLeft, NumUnit 0 Px)
-                  , (BorderLeftWidth, NumUnit 0 Px) -- TODO: replace with medium
-                  , (PaddingLeft, NumUnit 0 Px)
-                  , (Width, Auto)
-                  , (PaddingRight, Px 0)
-                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
-                  , (BorderTopWidth, Px 0) -- TODO: replace with medium
-                  , (BorderRightWidth, Px 0) -- TODO: replace with medium
-                  , (MarginRight, Px 0)
-                ]
--}
 
 parseStyle :: String -> Style
 parseStyle = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs . pack
