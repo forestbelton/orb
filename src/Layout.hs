@@ -35,7 +35,7 @@ buildLayout n@(Node (nt, Block, sty) cs) = Node (nt, Dimensions (SDL.Rect 0 0 wi
 buildDisplayCommands :: Layout -> [DisplayCommand]
 buildDisplayCommands (Node (nodeTy, dim, Block, sty) cs) = dc : concatMap buildDisplayCommands cs
     where dc = case nodeTy of
-                   Element _ _ -> displayRect ((\(Color c) -> c) $ S.lookup sty BackgroundColor) (dimensionsContent dim)
+                   Element _ _ -> displayRect (fromColor $ S.lookup sty BackgroundColor) (dimensionsContent dim)
                    Text s -> case dimensionsContent dim of
                        (SDL.Rect x y _ _ ) -> displayText x y (fromFont $ S.lookup sty FontFamily) (fromColor $ S.lookup sty FontColor) s
 

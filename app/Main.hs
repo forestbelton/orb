@@ -28,6 +28,7 @@ initScreen width height = do
     fontCache <- newIORef M.empty
     withCString "orb" $ \s ->
         SDL.setWindowTitle window s
+    SDL.setRenderDrawBlendMode renderer SDL.SDL_BLENDMODE_BLEND
     return $ SDLContext window renderer fontCache
 
 cleanUp :: SDLContext -> IO ()

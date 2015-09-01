@@ -14,3 +14,6 @@ data SDLContext = SDLContext {
  }
 
 type DisplayCommand = SDLContext -> IO ()
+
+displayNothing :: DisplayCommand
+displayNothing ctx = return ()

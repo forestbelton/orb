@@ -5,7 +5,7 @@ import Style.Types
 import qualified Graphics.UI.SDL as SDL
 
 rgb :: Word8 -> Word8 -> Word8 -> PropVal
-rgb r g b = Color $ SDL.Color r g b 255
+rgb r g b = Color $ SDL.Color r g b 0xff
 
 -- http://www.w3.org/TR/CSS2/syndata.html#value-def-color
 maroon  = rgb 0x80 0x00 0x00
@@ -25,3 +25,5 @@ teal    = rgb 0x00 0x80 0x80
 black   = rgb 0x00 0x00 0x00
 silver  = rgb 0xc0 0xc0 0xc0
 gray    = rgb 0x80 0x80 0x80
+
+transparent = Color $ SDL.Color 0x00 0x00 0x00 0x00

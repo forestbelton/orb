@@ -21,5 +21,5 @@ defaultFont = unsafePerformIO $ TTF.init >> TTF.openFont "./assets/arial.ttf" 12
 defaults :: PropKey -> PropVal
 defaults FontColor       = black
 defaults FontFamily      = Font defaultFont
-defaults BackgroundColor = white
+defaults BackgroundColor = transparent
 defaults _               = NumUnit 0 Px
