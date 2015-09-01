@@ -24,16 +24,24 @@ data PropKey
     | FontColor
   deriving (Eq, Ord, Show)
 
+data Units
+    = Px
+    | Em
+    | Percent
+    | Pt
+    deriving (Eq, Show)
+
 data PropVal
-    = Px Int
+    = NumUnit Int Units
     | Color SDL.Color
     | Auto
-    | Font TTFFont
+    | Font TTFFont 
   deriving (Eq, Show)
+
 
 -- unsafe accessors
 fromPx :: PropVal -> Int
-fromPx (Px n) = n
+fromPx (NumUnit n Px) = n
 
 fromColor :: PropVal -> SDL.Color
 fromColor (Color c) = c

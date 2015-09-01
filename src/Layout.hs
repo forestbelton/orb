@@ -14,8 +14,8 @@ import Layout.Height
 
 -- todo: make safer
 findPx :: Style -> PropKey -> CInt
-findPx (Style s) k = fromIntegral $ toPx $ S.lookup (Style s) k
-    where toPx (Px n) = n
+findPx (Style s) k = fromIntegral $ toPx $ M.findWithDefault (S.lookup (Style s) k) k s
+    where toPx (NumUnit n Px) = n
 
 -- todo: handle auto
 computeWidth :: CInt -> Node (NodeType, BoxType, Style) -> CInt
