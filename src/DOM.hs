@@ -2,6 +2,7 @@ module DOM where
 
 import Node
 
+import qualified Data.Text as T
 import Text.HTML.TagSoup
 import Text.HTML.TagSoup.Tree
 import qualified Data.Map as M
@@ -29,7 +30,12 @@ nodeName = onDOMNodeType go
           go (Element tagName _) = tagName
           go (Comment _)         = "#comment"
 
+stripEmptyText :: [Tag String] -> [Tag String]
+stripEmptyText = filter justWS
+    where justWS (TagText s) = not $ all (\c -> c == ' ' || c == '\r' || c == '\n') s
+          justWS x           = True
+
 parseDOM :: String -> DOMNode
-parseDOM = go . head . tagTree . parseTags
+parseDOM = go . head . tagTree . stripEmptyText . parseTags
     where go (TagBranch name attrs cs) = Node (Element name $ M.fromAscList attrs) (map go cs)
           go (TagLeaf (TagText t))     = Node (Text t) []

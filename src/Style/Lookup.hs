@@ -6,7 +6,6 @@ import Style.Types
 
 import Prelude hiding (lookup)
 import qualified Data.Map as M
-import qualified Graphics.UI.SDL as SDL
 import qualified Graphics.UI.SDL.TTF as TTF
 import Graphics.UI.SDL.TTF.FFI (TTFFont)
 import System.IO.Unsafe

@@ -1,5 +1,7 @@
 module Layout where
 
+import Debug.Trace
+
 import DOM
 import Paint
 import Node
@@ -24,13 +26,16 @@ computeWidth parentWidth (Node (_, Block, sty) _) = parentWidth - margin - paddi
          padding = findPx sty PaddingLeft + findPx sty PaddingRight
          border  = findPx sty BorderLeftWidth + findPx sty BorderRightWidth
 
-buildLayout :: Node (NodeType, BoxType, Style) -> Layout
-buildLayout n@(Node (nt, Block, sty) cs) = Node (nt, Dimensions (SDL.Rect 0 0 width h) paddingEdges marginEdges borderEdges, Block, sty) (map buildLayout cs)
-    where width  = computeWidth 800 n
-          h = fromIntegral $ height n
-          paddingEdges = Edges (findPx sty PaddingTop) (findPx sty PaddingRight) (findPx sty PaddingBottom) (findPx sty PaddingLeft)
-          marginEdges  = Edges (findPx sty MarginTop) (findPx sty MarginRight) (findPx sty MarginBottom) (findPx sty MarginLeft)
-          borderEdges  = Edges (findPx sty BorderTopWidth) (findPx sty BorderRightWidth) (findPx sty BorderBottomWidth) (findPx sty BorderLeftWidth)
+buildLayout' :: Int -> Node (NodeType, BoxType, Style) -> Layout
+buildLayout' y r@(Node (nt, Block, sty) cs) = n
+    where n  = Node (nt, Dimensions (SDL.Rect 0 (fromIntegral y) w h), Block, sty) cs'
+          w = 800
+          h = fromIntegral $ y' - y
+          (y', cs') = foldr go (y, []) (reverse cs) -- todo: figure out why i have to reverse here
+          go c (y1, cs1) = (y1 + height c, buildLayout' y1 c : cs1)
+
+buildLayout ::  Node (NodeType, BoxType, Style) -> Layout
+buildLayout n = buildLayout' 0 n
 
 buildDisplayCommands :: Layout -> [DisplayCommand]
 buildDisplayCommands (Node (nodeTy, dim, Block, sty) cs) = dc : concatMap buildDisplayCommands cs

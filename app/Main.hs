@@ -54,6 +54,7 @@ draw ctx ds = do
     let r = contextRenderer ctx
     SDL.setRenderDrawColor r 255 255 255 255
     SDL.renderClear r
+    paint ctx [displayRect (SDL.Color 255 255 255 255) (SDL.Rect 0 0 800 600)]
     paint ctx ds
     SDL.renderPresent r
     return ()

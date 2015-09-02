@@ -21,7 +21,7 @@ import Control.Applicative
 
 -- Parse the keys given in through a String
 parseKey :: String -> Maybe PropKey
-parseKey = either (const Nothing) Just . parseOnly (keyParser <* endOfInput) . pack 
+parseKey = either (const Nothing) Just . parseOnly (keyParser <* endOfInput) . pack
 
 -- Parse the values given in through a String
 parseVal :: String -> Maybe PropVal
@@ -32,7 +32,7 @@ token s x = string s *> pure x
 
 -- Parse all possible PropKeys
 keyParser :: Parser PropKey
-keyParser = 
+keyParser =
      token "background-color" BackgroundColor
  <|> token "width" Width
  <|> token "margin-right" MarginRight
@@ -44,14 +44,14 @@ keyParser =
 
 -- Parse the units
 unitParser :: Parser Units
-unitParser = 
+unitParser =
      token "px" Px
  <|> token "em" Em
  <|> token "%"  Percent
  <|> token "pt" Pt
 
 -- Parse the number before the units, and the units themselves
-numUnitParser :: Parser PropVal 
+numUnitParser :: Parser PropVal
 numUnitParser = NumUnit <$> decimal <*> unitParser
 
 -- Parse a single hex character
@@ -64,18 +64,19 @@ colorHexParser p = Style.Color.rgb <$> (char '#' *> hp) <*> hp <*> hp
 
 -- Parser for color in #RGB format
 colorRGBParser :: Parser PropVal
-colorRGBParser = colorHexParser (replicate 2 <$> hexParser) 
+colorRGBParser = colorHexParser (replicate 2 <$> hexParser)
 
 -- Parser for color in #RRGGBB format
 colorRRGGBBParser :: Parser PropVal
-colorRRGGBBParser = colorHexParser (count 2 hexParser) 
+colorRRGGBBParser = colorHexParser (count 2 hexParser)
 
 -- Parser for color in string literal format
-colorStringParser :: Parser PropVal 
-colorStringParser = 
-     (string "red"      >> return (Style.Color.rgb 255 0 0))
- <|> (string "green"    >> return (Style.Color.rgb 0 255 0))
- <|> (string "blue"     >> return (Style.Color.rgb 0 0 255))
+colorStringParser :: Parser PropVal
+colorStringParser =
+     token "red" red
+ <|> token "green" green
+ <|> token "blue" blue
+ <|> token "yellow" yellow
 
 -- Parse the values. Both the colors, and the numbers/units
 valParser :: Parser PropVal

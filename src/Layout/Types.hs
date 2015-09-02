@@ -12,17 +12,17 @@ data Edges = Edges {
     edgesRight :: CInt,
     edgesBottom :: CInt,
     edgesLeft :: CInt
-}
+} deriving (Show)
 
 data Dimensions = Dimensions {
-    dimensionsContent :: SDL.Rect,
-    padding :: Edges,
-    margin :: Edges,
-    border :: Edges
-}
+    dimensionsContent :: SDL.Rect
+--    padding :: Edges,
+--    margin :: Edges,
+--    border :: Edges
+} deriving (Show)
 
 noEdges :: Edges
 noEdges = Edges 0 0 0 0
 
-data BoxType = Block | Inline | Anonymous
+data BoxType = Block | Inline | Anonymous deriving (Show)
 type Layout = Node (NodeType, Dimensions, BoxType, Style)
