@@ -21,6 +21,7 @@ library
                      , Style
                      , Style.Types
                      , Style.Color
+                     , Style.Parser
                      , Style.Lookup
                      , Layout
                      , Layout.Height
