@@ -69,4 +69,5 @@ eventLoop pe ctx ds = do
             exitSuccess
         _ -> do
             draw ctx ds
+            SDL.delay 10
             eventLoop pe ctx ds
