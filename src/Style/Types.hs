@@ -50,4 +50,4 @@ fromFont :: PropVal -> TTFFont
 fromFont (Font f) = f
 
 newtype Style = Style (Map PropKey PropVal)
-  deriving (Show)
+  deriving (Show, Eq)
