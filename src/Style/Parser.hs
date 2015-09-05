@@ -1,6 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
-module Style.Parser (parseStyle) where
+module Style.Parser where
 
+import Prelude hiding (takeWhile)
 import Style.Color
 import Style.Types
 
@@ -76,9 +77,27 @@ colorStringParser =
  <|> token "blue" blue
  <|> token "yellow" yellow
 
+sepByN :: Int -> Parser a -> Parser b -> Parser [a]
+sepByN n p delim = (:) <$> p <*> t
+    where t = count (n - 1) (delim *> p)
+
+term :: Text -> Parser ()
+term s = string s *> takeWhile (inClass " \r\t\n") *> pure ()
+
+colorClipInt :: Integral a => Parser a
+colorClipInt = fromIntegral . max 0 . min 255 <$> signed decimal
+
+colorClipPct :: Integral a => Parser a
+colorClipPct = round . max 0 . min 255 . (* (255 / 100)) <$> (double <* char '%')
+
+colorRGBFuncParser :: Parser PropVal
+colorRGBFuncParser = buildCol <$> (term "rgb(" *> (commaSep colorClipInt <|> commaSep colorClipPct) <* (term ")"))
+  where commaSep p = sepByN 3 p (term ",")
+        buildCol [x, y, z] = rgb x y z
+
 -- Parse the values. Both the colors, and the numbers/units
 valParser :: Parser PropVal
-valParser = numUnitParser <|> colorStringParser <|> colorRRGGBBParser <|> colorRGBParser
+valParser = numUnitParser <|> colorStringParser <|> colorRRGGBBParser <|> colorRGBParser <|> colorRGBFuncParser
 
 parseStyle :: String -> Style
 parseStyle = Style . M.fromAscList . catMaybes . map (\(k, v) -> (,) <$> parseKey (unpack k) <*> parseVal (unpack v)) . (\(Right x) -> x) . parseAttrs . pack
