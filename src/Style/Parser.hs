@@ -22,7 +22,7 @@ parseVal :: String -> Maybe PropVal
 parseVal = either (const Nothing) Just . parseOnly (valParser <* endOfInput) . pack
 
 token :: Text -> a -> Parser a
-token s x = string s *> pure x
+token s x = term s *> pure x
 
 tokens :: [(Text, a)] -> Parser a
 tokens = foldr1 (<|>) . map (uncurry token)

@@ -25,6 +25,7 @@ library
                      , Style.Lookup
                      , Layout
                      , Layout.Height
+                     , Layout.Width
                      , Layout.Types
                      , Paint.DisplayCommand
                      , Paint.Rect
