@@ -1,33 +1,43 @@
-language: c
+# We don't want to set the language to Haskell here to avoid
+# automatically installing a different GHC
+language: generic
 
-sudo: required
+sudo: false
 
+# Cache our manually-built dependencies as well as the stack
+# build directory
 cache:
+  apt: true
   directories:
     - $HOME/.stack/
+    - $HOME/SDL2-2.0.3/
+    - $HOME/SDL2_ttf-2.0.12/
 
 before_install:
-  # stack
+  # Install stack
   - mkdir -p ~/.local/bin
   - export PATH=~/.local/bin:$PATH
   - travis_retry curl -L https://github.com/commercialhaskell/stack/releases/download/v0.1.2.0/stack-0.1.2.0-x86_64-linux.gz | gunzip > ~/.local/bin/stack
   - chmod a+x ~/.local/bin/stack
-  # ghc
+  # Add GHC to PATH
   - export PATH=/opt/ghc/7.8.4/bin:$PATH
-  # todo: figure out how to remove
-  - sudo apt-add-repository --yes ppa:zoogie/sdl2-snapshots
-  - sudo apt-get update -qq
-
-install:
-  - sudo apt-get install ghc-7.8.4 libgmp-dev libsdl2-dev libsdl2-ttf-dev
+  # Install SDL2 and SDL2_ttf
+  - bash .travis/install-sdl2.sh
+  - export PKG_CONFIG_PATH=~/SDL2-2.0.3/lib/pkgconfig:~/SDL2_ttf-2.0.12/lib/pkgconfig
+  - echo "extra-include-dirs:" >> stack.yaml
+  - echo "- $HOME/SDL2_ttf-2.0.12/include" >> stack.yaml
+  - echo "- $HOME/SDL2-2.0.3/include" >> stack.yaml
+  - echo "extra-lib-dirs:" >> stack.yaml
+  - echo "- $HOME/SDL2_ttf-2.0.12/lib" >> stack.yaml
+  - echo "- $HOME/SDL2-2.0.3/lib" >> stack.yaml
 
 addons:
   apt:
     sources:
     - hvr-ghc
-#    packages:
-#    - ghc-7.8.4
-#    - libgmp-dev
+    packages:
+    - ghc-7.8.4
+    - libgmp-dev
 
 script:
   - stack --no-terminal --skip-ghc-check setup
