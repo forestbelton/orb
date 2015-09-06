@@ -1,6 +1,6 @@
 module Style.Types where
 
-import Data.Map (Map)
+import qualified Data.Map as M
 import qualified Graphics.UI.SDL as SDL
 import Graphics.UI.SDL.TTF.FFI (TTFFont)
 
@@ -35,7 +35,7 @@ data PropVal
     = NumUnit Int Units
     | Color SDL.Color
     | Auto
-    | Font TTFFont 
+    | Font TTFFont
   deriving (Eq, Show)
 
 
@@ -49,5 +49,8 @@ fromColor (Color c) = c
 fromFont :: PropVal -> TTFFont
 fromFont (Font f) = f
 
-newtype Style = Style (Map PropKey PropVal)
+newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show, Eq)
+
+newStyle :: Style
+newStyle = Style M.empty

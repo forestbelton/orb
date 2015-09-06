@@ -1,4 +1,3 @@
-{-# LANGUAGE ExistentialQuantification #-}
 module Paint.DisplayCommand where
 
 import Data.IORef

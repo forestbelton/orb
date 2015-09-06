@@ -9,10 +9,13 @@ import DOM
 import Style.Color
 import Style.Parser
 import Style.Types
+
+import Control.Lens hiding (children)
 import qualified Data.Map as M
 
 styleNode :: DomNode -> StyledNode
-styleNode (DomNode nt cs) = StyledNode nt sty $ map styleNode cs
-    where sty = case nt of
-                    Element _ attrs -> maybe (Style M.empty) parseStyle $ M.lookup "style" attrs
-                    _               -> Style M.empty
+styleNode node = StyledNode nt sty $ map styleNode $ node ^. children
+    where nt = node ^. nodeType
+          sty = case nt of
+                    Element _ attrs -> maybe newStyle parseStyle $ M.lookup "style" attrs
+                    _               -> newStyle
