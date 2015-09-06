@@ -1,19 +1,21 @@
+{-# LANGUAGE FlexibleContexts #-}
 module Layout.Height (height) where
 
 import Layout.Types
 
 import DOM
-import Node
+import Types
 import Style
 import qualified Style.Lookup as S
 
-import qualified Data.Map as M
+import Control.Lens hiding (children)
 import qualified Graphics.UI.SDL.TTF as TTF
 import System.IO.Unsafe
 
-height :: Node (NodeType, BoxType, Style) -> Int
-height (Node (nt, _, Style sty) cs) = h + (sum $ map height cs)
-    where h = case nt of
-                Text t      -> let Font font = S.lookup (Style sty) FontFamily in
+height :: (HasNodeType a NodeType, HasStyle a Style, HasChildren a [a]) => a -> Int
+height node = h + (sum $ map height $ node ^. children)
+    where sty = node ^. style
+          h = case node ^. nodeType of
+                Text t      -> let Font font = S.lookup sty FontFamily in
                                  snd $ unsafePerformIO $ TTF.sizeUTF8 font t
-                Element _ _ -> (\(NumUnit n Px) -> n) $ M.findWithDefault (NumUnit 0 Px) Height sty
+                Element _ _ -> fromPx $ S.lookup sty Height

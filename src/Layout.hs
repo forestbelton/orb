@@ -1,15 +1,14 @@
 module Layout where
 
-import Debug.Trace
-
+import Types
 import DOM
 import Paint
-import Node
 import Style
 import qualified Style.Lookup as S
 import qualified Data.Map as M
 import qualified Graphics.UI.SDL as SDL
 import Foreign.C.Types
+import Control.Lens hiding (children)
 
 import Layout.Types
 import Layout.Height
@@ -17,30 +16,35 @@ import Layout.Width
 
 -- todo: make safer
 findPx :: Style -> PropKey -> CInt
-findPx (Style s) k = fromIntegral $ toPx $ M.findWithDefault (S.lookup (Style s) k) k s
-    where toPx (NumUnit n Px) = n
+findPx sty = fromIntegral . fromPx . S.lookup sty
 
-buildLayout' :: Int -> Int -> Node (NodeType, BoxType, Style) -> Layout
-buildLayout' parentWidth y r@(Node (nt, bt, sty) cs) = n
-    where n  = Node (nt, Dimensions (SDL.Rect 0 (fromIntegral y) (fromIntegral w) h), Block, sty) cs'
-          w = width parentWidth r
+buildLayout' :: Int -> Int -> BoxNode -> LayoutNode
+buildLayout' parentWidth y node = LayoutNode (node ^. nodeType) (node ^. style) lay cs'
+    where lay = Layout $ SDL.Rect 0 (fromIntegral y) (fromIntegral w) h
+          w = width parentWidth node
           h = fromIntegral $ y' - y
-          (y', cs') = foldr go (y, []) (reverse cs) -- todo: figure out why i have to reverse here
+          (y', cs') = foldr go (y, []) (reverse $ node ^. children) -- todo: figure out why i have to reverse here
           go c (y1, cs1) = (y1 + height c, buildLayout' w y1 c : cs1)
 
-buildLayout ::  Node (NodeType, BoxType, Style) -> Layout
-buildLayout n = buildLayout' 800 0 n
+buildLayout :: BoxNode -> LayoutNode
+buildLayout = buildLayout' 800 0
 
-buildDisplayCommands :: Layout -> [DisplayCommand]
-buildDisplayCommands (Node (nodeTy, dim, bt, sty) cs) = dc : concatMap buildDisplayCommands cs
-    where dc = case nodeTy of
-                   Element _ _ -> displayRect (fromColor $ S.lookup sty BackgroundColor) (dimensionsContent dim)
-                   Text s -> case dimensionsContent dim of
+buildDisplayCommands :: LayoutNode -> [DisplayCommand]
+buildDisplayCommands node = dc : concatMap buildDisplayCommands (node ^. children)
+    where sty = node ^. style
+          lay = layoutContent $ node ^. layout
+          dc = case node ^. nodeType of
+                   Element _ _ -> displayRect (fromColor $ S.lookup sty BackgroundColor) lay
+                   Text s -> case lay of
                        (SDL.Rect x y _ _ ) -> displayText x y (fromFont $ S.lookup sty FontFamily) (fromColor $ S.lookup sty FontColor) s
 
-layout :: Node (NodeType, Style) -> [DisplayCommand]
-layout = buildDisplayCommands . buildLayout . fmap (\(nt, sty) -> (nt, findBoxType nt, sty))
-    where findBoxType (Text _)      = Inline
-          findBoxType (Element n _) = case n of
+findBoxType :: StyledNode -> BoxNode
+findBoxType node = BoxNode nt (node ^. style) (bt nt) (map findBoxType $ node ^. children)
+    where nt = node ^. nodeType
+          bt (Text _)         = Inline
+          bt (Element name _) = case name of
               "span" -> Inline
               _      -> Block
+
+layoutNode :: StyledNode -> [DisplayCommand]
+layoutNode = buildDisplayCommands . buildLayout . findBoxType

@@ -30,6 +30,7 @@ before_install:
   - echo "extra-lib-dirs:" >> stack.yaml
   - echo "- $HOME/SDL2_ttf-2.0.12/lib" >> stack.yaml
   - echo "- $HOME/SDL2-2.0.3/lib" >> stack.yaml
+  - export LD_LIBRARY_PATH=$HOME/SDL2-2.0.3/lib:$HOME/SDL2_ttf-2.0.12/lib
 
 addons:
   apt:

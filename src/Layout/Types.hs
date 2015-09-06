@@ -1,9 +1,5 @@
 module Layout.Types where
 
-import DOM
-import Node
-import Style
-
 import Foreign.C.Types
 import qualified Graphics.UI.SDL as SDL
 
@@ -12,17 +8,17 @@ data Edges = Edges {
     edgesRight :: CInt,
     edgesBottom :: CInt,
     edgesLeft :: CInt
-} deriving (Show)
+} deriving (Eq, Show)
 
-data Dimensions = Dimensions {
-    dimensionsContent :: SDL.Rect
+data Layout = Layout {
+    layoutContent :: SDL.Rect
 --    padding :: Edges,
 --    margin :: Edges,
 --    border :: Edges
-} deriving (Show)
+} deriving (Eq, Show)
 
 noEdges :: Edges
 noEdges = Edges 0 0 0 0
 
-data BoxType = Block | Inline | Anonymous deriving (Show)
-type Layout = Node (NodeType, Dimensions, BoxType, Style)
+data BoxType = Block | Inline
+    deriving (Eq, Show)

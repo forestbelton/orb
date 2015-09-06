@@ -1,7 +1,6 @@
 module Main where
 
 import DOM
-import Node
 import Paint
 import Layout
 import Style
@@ -47,7 +46,7 @@ main = do
     eventLoop ptrEvent ctx ds
 
 build :: FilePath -> IO [DisplayCommand]
-build = fmap (layout . styleNode . parseDOM) . readFile
+build = fmap (layoutNode . styleNode . parseDOM) . readFile
 
 draw :: SDLContext -> [DisplayCommand] -> IO ()
 draw ctx ds = do
