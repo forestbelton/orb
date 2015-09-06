@@ -13,6 +13,7 @@ import Control.Lens hiding (children)
 import Layout.Types
 import Layout.Height
 import Layout.Width
+import Layout.Box
 
 -- todo: make safer
 findPx :: Style -> PropKey -> CInt
@@ -38,13 +39,5 @@ buildDisplayCommands node = dc : concatMap buildDisplayCommands (node ^. childre
                    Text s -> case lay of
                        (SDL.Rect x y _ _ ) -> displayText x y (fromFont $ S.lookup sty FontFamily) (fromColor $ S.lookup sty FontColor) s
 
-findBoxType :: StyledNode -> BoxNode
-findBoxType node = BoxNode nt (node ^. style) (bt nt) (map findBoxType $ node ^. children)
-    where nt = node ^. nodeType
-          bt (Text _)         = Inline
-          bt (Element name _) = case name of
-              "span" -> Inline
-              _      -> Block
-
 layoutNode :: StyledNode -> [DisplayCommand]
-layoutNode = buildDisplayCommands . buildLayout . findBoxType
+layoutNode = buildDisplayCommands . buildLayout . makeAnonymousBox . makeBoxModel

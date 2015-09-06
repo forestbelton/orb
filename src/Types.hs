@@ -31,6 +31,7 @@ makeFields ''StyledNode
 data BoxNode = BoxNode {
     _boxNodeNodeType :: NodeType,
     _boxNodeStyle :: Style,
+    _boxNameType :: NameType,
     _boxNodeBoxType :: BoxType,
     _boxNodeChildren :: [BoxNode]
   } deriving (Eq, Show)

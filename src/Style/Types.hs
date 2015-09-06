@@ -22,6 +22,7 @@ data PropKey
     | Height
     | FontFamily
     | FontColor
+    | Display
   deriving (Eq, Ord, Show)
 
 data Units
@@ -31,11 +32,18 @@ data Units
     | Pt
     deriving (Eq, Show)
 
+data DisplayType
+    = NoneType
+    | BlockType
+    | InlineType
+    deriving (Eq, Show)
+
 data PropVal
     = NumUnit Int Units
     | Color SDL.Color
     | Auto
     | Font TTFFont
+    | DisplayVal DisplayType
   deriving (Eq, Show)
 
 
@@ -48,6 +56,9 @@ fromColor (Color c) = c
 
 fromFont :: PropVal -> TTFFont
 fromFont (Font f) = f
+
+fromDisplayVal :: PropVal -> DisplayType
+fromDisplayVal (DisplayVal v) = v
 
 newtype Style = Style (M.Map PropKey PropVal)
   deriving (Show, Eq)

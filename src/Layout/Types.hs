@@ -22,3 +22,6 @@ noEdges = Edges 0 0 0 0
 
 data BoxType = Block | Inline
     deriving (Eq, Show)
+
+data NameType = Named | Anonymous
+    deriving (Eq, Show)

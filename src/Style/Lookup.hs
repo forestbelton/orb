@@ -21,4 +21,5 @@ defaults :: PropKey -> PropVal
 defaults FontColor       = black
 defaults FontFamily      = Font defaultFont
 defaults BackgroundColor = transparent
+defaults Display         = DisplayVal InlineType
 defaults _               = NumUnit 0 Px

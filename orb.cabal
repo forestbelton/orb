@@ -27,6 +27,7 @@ library
                      , Layout.Height
                      , Layout.Width
                      , Layout.Types
+                     , Layout.Box
                      , Paint.DisplayCommand
                      , Paint.Rect
                      , Paint.Text
